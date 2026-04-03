@@ -14,6 +14,7 @@ navigation3 = "1.0.1"
 exp4j = "0.4.8"
 kotlinxSerialization = "1.10.0"
 googleFonts = "1.7.0"
+splashscreen = "1.2.0"
 material3 = "1.4.0"
 javaxInject = "1"
 minSdk = "24"
@@ -32,6 +33,7 @@ kotlin-serialization-gradlePlugin = { group = "org.jetbrains.kotlin", name = "ko
 
 # AndroidX
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

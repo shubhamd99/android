@@ -79,11 +79,20 @@ class CalculatorViewModel @Inject constructor(
 
     private fun handleDigit(digit: String) {
         _state.update {
+            val lastToken = it.expression.split(Regex("[\\s+\\-x÷^()]+")).lastOrNull() ?: ""
+            if (digit == ".") {
+                // Prevent multiple decimal points in a single numeric token
+                if (lastToken.contains(".") || lastToken == "Ans" || lastToken == "π" || lastToken == "e") {
+                    return@update it
+                }
+            }
+
             if (digit == "E") {
                 // EXP requires a digit to attach to — guard against bare E in the expression
                 val base = if (it.justEvaluated) it.result else it.expression
                 val lastChar = base.trimEnd().lastOrNull()
-                if (lastChar == null || !lastChar.isDigit()) return@update it
+                if (lastChar == null || (!lastChar.isDigit() && lastChar != '.')) return@update it
+                
                 // After =, append E to the result rather than starting fresh
                 if (it.justEvaluated) {
                     return@update it.copy(
@@ -93,21 +102,40 @@ class CalculatorViewModel @Inject constructor(
                     )
                 }
             }
-            val newExpr = if (it.justEvaluated || it.expression.isEmpty()) digit
-                          else it.expression + digit
+
+            val newExpr = if (it.justEvaluated || it.expression.isEmpty()) {
+                if (digit == ".") "0." else digit
+            } else {
+                it.expression + digit
+            }
             it.copy(expression = newExpr, hasError = false, justEvaluated = false)
         }
     }
 
     private fun handleOperator(op: String) {
         _state.update {
-            val base = when {
-                it.justEvaluated -> it.result
-                it.expression.isEmpty() -> it.lastResult
-                else -> it.expression
+            var currentExpr = if (it.justEvaluated) it.result else it.expression
+            if (currentExpr == "Error") currentExpr = ""
+
+            val operators = listOf("+", "-", "x", "÷", "^")
+            val trimmed = currentExpr.trimEnd()
+            
+            val newExpr = when {
+                trimmed.isEmpty() -> {
+                    if (it.lastResult == "Error" || it.lastResult == "0") "0 $op " 
+                    else "${it.lastResult} $op "
+                }
+                operators.any { o -> trimmed.endsWith(o) } -> {
+                    // Replace the last operator
+                    trimmed.dropLast(1).trimEnd() + " $op "
+                }
+                else -> {
+                    "$trimmed $op "
+                }
             }
+
             it.copy(
-                expression = if (base == "Error") "" else "$base $op ",
+                expression = newExpr,
                 justEvaluated = false
             )
         }
@@ -125,10 +153,16 @@ class CalculatorViewModel @Inject constructor(
             when {
                 it.justEvaluated -> it.copy(expression = "", justEvaluated = false)
                 it.expression.isNotEmpty() -> {
-                    val newExpr = if (it.expression.length >= 3 && it.expression.endsWith(" ")) {
-                        it.expression.dropLast(3)
-                    } else {
-                        it.expression.dropLast(1)
+                    val expr = it.expression
+                    val newExpr = when {
+                        expr.endsWith(" ") -> expr.dropLast(3) // For operators like " + "
+                        expr.endsWith("Ans") -> expr.dropLast(3)
+                        expr.endsWith("sin(") || expr.endsWith("cos(") || expr.endsWith("tan(") -> expr.dropLast(4)
+                        expr.endsWith("asin(") || expr.endsWith("acos(") || expr.endsWith("atan(") -> expr.dropLast(5)
+                        expr.endsWith("log(") || expr.endsWith("exp(") -> expr.dropLast(4)
+                        expr.endsWith("ln(") -> expr.dropLast(3)
+                        expr.endsWith("sqrt(") -> expr.dropLast(5)
+                        else -> expr.dropLast(1)
                     }
                     it.copy(expression = newExpr)
                 }

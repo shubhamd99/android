@@ -13,24 +13,16 @@ import kotlin.math.tan
 
 class DefaultExpressionParser @Inject constructor() : ExpressionParser {
 
-    private val factorial = object : Operator("!", 1, true, Operator.PRECEDENCE_POWER + 1) {
+    private val factorialFunction = object : Function("fact", 1) {
         override fun apply(vararg args: Double): Double {
-            val arg = args[0].toInt()
-            if (arg.toDouble() != args[0]) {
-                throw IllegalArgumentException("Operand for factorial must be an integer")
-            }
-            if (arg < 0) {
-                throw IllegalArgumentException("Factorial operand cannot be negative")
+            val arg = args[0]
+            if (arg < 0 || arg != Math.floor(arg)) {
+                throw IllegalArgumentException("Factorial requires a non-negative integer")
             }
             var result = 1.0
-            for (i in 1..arg) result *= i
+            for (i in 1..arg.toInt()) result *= i
             return result
         }
-    }
-
-    // Postfix % operator: 50% → 0.5
-    private val percent = object : Operator("%", 1, true, Operator.PRECEDENCE_POWER - 1) {
-        override fun apply(vararg args: Double): Double = args[0] / 100.0
     }
 
     override fun evaluate(
@@ -38,9 +30,11 @@ class DefaultExpressionParser @Inject constructor() : ExpressionParser {
         isDegreeMode: Boolean,
         variables: Map<String, Double>
     ): Double {
-        val processedExpression = preprocess(expression)
+        val closedExpression = autoCloseParentheses(expression)
+        val processedExpression = preprocess(closedExpression)
+        
         val builder = ExpressionBuilder(processedExpression)
-            .operator(factorial, percent)
+            .functions(factorialFunction)
             .variables(variables.keys)
 
         if (isDegreeMode) {
@@ -53,6 +47,12 @@ class DefaultExpressionParser @Inject constructor() : ExpressionParser {
         return exp.evaluate()
     }
 
+    private fun autoCloseParentheses(expression: String): String {
+        val openCount = expression.count { it == '(' }
+        val closeCount = expression.count { it == ')' }
+        return expression + ")".repeat((openCount - closeCount).coerceAtLeast(0))
+    }
+
     private fun preprocess(expression: String): String {
         var processed = expression
             .replace(" x ", " * ")
@@ -60,9 +60,13 @@ class DefaultExpressionParser @Inject constructor() : ExpressionParser {
             .replace("π", "pi")
             .replace("√", "sqrt")
 
+        // Postfix operators: replace 50% with (50/100) and 5! with fact(5)
+        // Regex handles decimals for percent but only integers for factorial
+        processed = processed.replace(Regex("(\\d*\\.?\\d+)%"), "($1/100)")
+        processed = processed.replace(Regex("(\\d+)!"), "fact($1)")
+
         // Convert scientific E notation → explicit power: 1.5E10 → 1.5*10^10
-        // Must run before implicit-multiplication to avoid double-processing
-        processed = processed.replace(Regex("(\\d)[Ee]([+\\-]?\\d)"), "$1*10^$2")
+        processed = processed.replace(Regex("(\\d*\\.?\\d+)[Ee]([+\\-]?\\d+)"), "$1*10^$2")
         // Strip any E with no following digit (incomplete notation: "5E" → "5")
         processed = processed.replace(Regex("[Ee](?![+\\-]?\\d)"), "")
 
@@ -79,11 +83,17 @@ class DefaultExpressionParser @Inject constructor() : ExpressionParser {
         }
 
         // Implicit multiplication: 2pi → 2*pi, 5(3+1) → 5*(3+1), )sin( → )*sin(
+        val symbols = "pi|sqrt|log|sin|cos|tan|atan|asin|acos|Ans|exp|\\("
         processed = processed.replace(
-            Regex("(\\d|pi)\\s*(pi|sqrt|log|sin|cos|tan|atan|asin|acos|\\()"), "$1*$2"
-        )
-        processed = processed.replace(
-            Regex("\\)\\s*(\\d|pi|sqrt|log|sin|cos|tan|atan|asin|acos|\\()"), ")*$1"
+            Regex("(\\d|pi|Ans|\\))\\s*($symbols|\\d)"), { matchResult ->
+                val first = matchResult.groupValues[1]
+                val second = matchResult.groupValues[2]
+                if (first.all { it.isDigit() } && second.all { it.isDigit() }) {
+                    matchResult.value
+                } else {
+                    "$first*$second"
+                }
+            }
         )
 
         return processed
