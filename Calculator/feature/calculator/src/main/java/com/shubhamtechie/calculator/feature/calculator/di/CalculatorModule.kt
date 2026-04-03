@@ -1,17 +1,18 @@
 package com.shubhamtechie.calculator.feature.calculator.di
 
+import com.shubhamtechie.calculator.core.common.DefaultExpressionParser
 import com.shubhamtechie.calculator.core.common.ExpressionParser
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
-object CalculatorModule {
-    
-    @Provides
-    @Singleton
-    fun provideExpressionParser(): ExpressionParser = ExpressionParser()
+@InstallIn(ViewModelComponent::class)
+abstract class CalculatorModule {
+
+    @Binds
+    @ViewModelScoped
+    abstract fun bindExpressionParser(impl: DefaultExpressionParser): ExpressionParser
 }

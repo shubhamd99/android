@@ -8,4 +8,5 @@ android {
 
 dependencies {
     implementation(libs.exp4j)
+    implementation(libs.javax.inject)
 }

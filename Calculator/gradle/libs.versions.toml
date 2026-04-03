@@ -12,13 +12,14 @@ hilt = "2.59.2"
 ksp = "2.3.6"
 navigation3 = "1.0.1"
 exp4j = "0.4.8"
-googleFonts = "1.7.0"
 kotlinxSerialization = "1.10.0"
+googleFonts = "1.7.0"
+material3 = "1.4.0"
+javaxInject = "1"
 minSdk = "24"
 targetSdk = "36"
 compileSdk = "36"
 jvmTarget = "11"
-material3 = "1.4.0"
 
 [libraries]
 # Gradle plugins (for build-logic compileOnly)
@@ -38,7 +39,7 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 
-# Compose
+# Compose (versions managed by BOM — no explicit version on BOM-managed artifacts)
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -53,7 +54,8 @@ androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = 
 # DI
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.3.0" }
+javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
 
 # Navigation
 navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }

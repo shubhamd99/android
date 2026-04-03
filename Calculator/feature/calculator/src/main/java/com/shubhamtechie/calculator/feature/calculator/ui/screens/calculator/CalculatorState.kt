@@ -17,16 +17,3 @@ data class CalculatorState(
     // Raw double result for F-E reformatting without re-evaluation
     val rawResult: Double? = null
 )
-
-sealed class CalculatorEvent {
-    data class DigitPressed(val digit: String) : CalculatorEvent()
-    data class OperatorPressed(val op: String) : CalculatorEvent()
-    data class FunctionPressed(val fn: String) : CalculatorEvent()
-    object EqualsPressed : CalculatorEvent()
-    object ClearPressed : CalculatorEvent()
-    object BackspacePressed : CalculatorEvent()
-    object ToggleMode : CalculatorEvent()
-    object ToggleInverse : CalculatorEvent()
-    object ToggleAngleMode : CalculatorEvent()
-    object ToggleFormat : CalculatorEvent()
-}
