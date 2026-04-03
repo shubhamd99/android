@@ -1,21 +1,58 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ProGuard/R8 rules for Calculator App
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# ---------------------------------------------------------
+# Kotlin & Coroutines
+# ---------------------------------------------------------
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Keep generic signatures for reflection
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod,InnerClasses
+-keepattributes SourceFile,LineNumberTable
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# ---------------------------------------------------------
+# Kotlinx Serialization
+# ---------------------------------------------------------
+
+# The library includes consumer rules, but we can be explicit
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
+-keepclassmembers class * {
+    @kotlinx.serialization.Serializable *;
+}
+-keepnames @kotlinx.serialization.Serializable class *
+
+# Keep all navigation routes (especially for Navigation 3)
+-keep class com.shubhamtechie.calculator.navigation.** { *; }
+
+# ---------------------------------------------------------
+# Hilt / Dagger
+# ---------------------------------------------------------
+
+-keep class dagger.hilt.** { *; }
+-keep @dagger.Module class *
+-keep class com.shubhamtechie.calculator.**_HiltComponents* { *; }
+-keep class com.shubhamtechie.calculator.**_GeneratedInjector { *; }
+-keep class com.shubhamtechie.calculator.di.** { *; }
+
+# ---------------------------------------------------------
+# Compose
+# ---------------------------------------------------------
+
+-keep class androidx.compose.ui.platform.** { *; }
+
+# ---------------------------------------------------------
+# Project Specific (Models & Routes)
+# ---------------------------------------------------------
+
+# Keep all data models and state classes to prevent stripping of fields
+-keep class com.shubhamtechie.calculator.feature.calculator.ui.screens.calculator.CalculatorState { *; }
+-keep class com.shubhamtechie.calculator.feature.calculator.domain.model.** { *; }
+-keep class com.shubhamtechie.calculator.core.common.** { *; }
+
+# Keep all navigation routes
+-keep class com.shubhamtechie.calculator.navigation.Screen { *; }
+
+# ---------------------------------------------------------
+# exp4j (Expression Parser)
+# ---------------------------------------------------------
+-keep class net.objecthunter.exp4j.** { *; }
