@@ -2,46 +2,49 @@ package com.shubhamtechie.calculator
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.shubhamtechie.calculator.ui.theme.CalculatorTheme
+import androidx.compose.ui.graphics.toArgb
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import com.shubhamtechie.calculator.core.designsystem.Primary
+import com.shubhamtechie.calculator.core.designsystem.ThermalIndustrialTheme
+import com.shubhamtechie.calculator.feature.calculator.ui.screens.calculator.CalculatorRoute
+import com.shubhamtechie.calculator.navigation.Screen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        
+        val orangeColor = Primary.toArgb()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(orangeColor)
+        )
+        
         setContent {
-            CalculatorTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            ThermalIndustrialTheme {
+                AppNavHost()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun AppNavHost() {
+    val backStack = rememberNavBackStack(Screen.Calculator)
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CalculatorTheme {
-        Greeting("Android")
-    }
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryProvider = entryProvider {
+            entry<Screen.Calculator> {
+                CalculatorRoute()
+            }
+        }
+    )
 }

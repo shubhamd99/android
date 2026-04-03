@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -24,3 +25,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "Calculator"
 include(":app")
+include(":core:designsystem")
+include(":core:common")
+include(":core:ui")
+include(":feature:calculator")
+include(":navigation")
