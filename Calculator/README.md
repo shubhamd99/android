@@ -1,5 +1,11 @@
 # Calculator App (Android)
 
+<p align="center">
+  <img src="preview/01.png" width="30%" />
+  <img src="preview/02.png" width="30%" />
+  <img src="preview/03.png" width="30%" />
+</p>
+
 A modern, highly modularized Android Calculator application built with **Jetpack Compose**, **Hilt**, and **Navigation 3**, following a "Clean Architecture" inspired structure.
 
 ---
